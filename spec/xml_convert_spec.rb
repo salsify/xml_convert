@@ -2,12 +2,34 @@ require "spec_helper"
 
 describe "XmlConvert" do
 
-  describe ".encode_name" do
+  describe ".decode_name" do
     it "returns nil when argument is nil" do
+      XmlConvert.decode_name(nil).should eq nil
+    end
+
+    it "returns the empty string when name is an empty string" do
+      XmlConvert.decode_name("").should eq ""
+    end
+
+    it "unescapes a single space" do
+      XmlConvert.decode_name("_x0020_").should eq " "
+    end
+
+    it "unescapes spaces" do
+      XmlConvert.decode_name("Order_x0020_Details").should eq "Order Details"
+    end
+
+    it "does not unescape leading underscores" do
+      XmlConvert.decode_name("_Test").should eq "_Test"
+    end
+  end
+
+  describe ".encode_name" do
+    it "returns nil when name is nil" do
       XmlConvert.encode_name(nil).should eq nil
     end
 
-    it "returns the empty string when argument is an empty string" do
+    it "returns the empty string when name is an empty string" do
       XmlConvert.encode_name("").should eq ""
     end
 

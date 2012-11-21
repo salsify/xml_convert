@@ -1,14 +1,35 @@
+#
+# Inspired on System.Xml.XmlConvert
+# (C) 2002 Ximian, Inc (http://www.ximian.com)
+#
+
 require "xml_convert/version"
 
 module XmlConvert
-  
+
+  # Converts an encoded XML name to its original form.
+  #
+  # @example XmlConvert.decode_name('Order_x0020_Details') #=> 'Order Details'
+  #
+  # @param [String] name the name to be decoded.
+  # @return [String] the decoded name.
+  def self.decode_name(name)
+    return name if name.nil? || name.length == 0
+
+    pos = name.index('_')
+    return name if pos.nil? || pos + 6 >= name.length
+
+    return name if name[pos+1] != 'x' || name[pos+6] != '_'
+
+    name.slice(0, pos) << try_decoding(name[pos+1..-1])
+  end  
+
   # Converts the name to a valid XML name.
   #
   # @example XmlConvert.encode_name('Order Details') #=> 'Order_x0020_Details'
   #
   # @param [String] name the name to be encoded.
-  # @return [String, nil] the encoded name or nil if the name cannot be
-  #   converted to a string.
+  # @return [String] the encoded name.
   def self.encode_name(name)
     return name if name.nil? || name.length == 0
 
@@ -37,6 +58,18 @@ module XmlConvert
   end
 
   private
+
+  def self.try_decoding(string)
+    return string if string.nil? || string.length < 6
+
+    i = string[1..4].hex
+
+    return string[0] << decode_name(string[1..-1]) if i == 0
+
+    return i.chr if string.length == 6
+
+    i.chr << decode_name(string[6..-1])
+  end
 
   def self.is_invalid?(char, is_first_letter)
     !self.is_valid?(char, is_first_letter)
