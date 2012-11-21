@@ -1,8 +1,3 @@
-#
-# Inspired on System.Xml.XmlConvert
-# (C) 2002 Ximian, Inc (http://www.ximian.com)
-#
-
 require "xml_convert/version"
 
 module XmlConvert
@@ -33,17 +28,15 @@ module XmlConvert
   def self.encode_name(name)
     return name if name.nil? || name.length == 0
 
-    encoded_name = ""
-    name.chars.each_with_index do |c, i|
-      if is_invalid?(c, encoded_name == "")
-        encoded_name << "_x#{'%04x' % c.ord}_"
+    name.chars.each_with_index.reduce("") do |memo, (c, i)|
+      if is_invalid?(c, memo == "")
+        memo << "_x#{'%04x' % c.ord}_"
       elsif c == '_' && i+6 < name.length && name[i+1] == 'x' && name[i+6] == '_'
-        encoded_name << '_x005f_'
+        memo << '_x005f_'
       else
-        encoded_name << c
+        memo << c
       end
     end
-    encoded_name
   end
 
   # Converts the name to a valid XML local name.
@@ -62,13 +55,15 @@ module XmlConvert
   def self.try_decoding(string)
     return string if string.nil? || string.length < 6
 
-    i = string[1..4].hex
+    ord = string[1..4].hex
 
-    return string[0] << decode_name(string[1..-1]) if i == 0
-
-    return i.chr if string.length == 6
-
-    i.chr << decode_name(string[6..-1])
+    if ord == 0
+      string[0] << decode_name(string[1..-1])
+    elsif string.length == 6
+      ord.chr
+    else
+      ord.chr << decode_name(string[6..-1])
+    end
   end
 
   def self.is_invalid?(char, is_first_letter)
@@ -85,36 +80,44 @@ module XmlConvert
   #                   [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] |
   #                   [#x10000-#xEFFFF]
   def self.is_name_start_char?(char)
-    ord = char.ord
-
-    (ord == ':'.ord)                          ||
-    (ord >= 'A'.ord     && ord <= 'Z'.ord)    ||
-    (ord == '_'.ord)                          ||
-    (ord >= 'a'.ord     && ord <= 'z'.ord)    ||
-    (ord >= 'C0'.hex    && ord <= 'D6'.hex)   ||
-    (ord >= 'D8'.hex    && ord <= 'F6'.hex)   ||
-    (ord >= 'F8'.hex    && ord <= '2FF'.hex)  ||
-    (ord >= '370'.hex   && ord <= '37D'.hex)  ||
-    (ord >= '37F'.hex   && ord <= '1FFF'.hex) ||
-    (ord >= '200C'.hex  && ord <= '200D'.hex) ||
-    (ord >= '2070'.hex  && ord <= '218F'.hex) ||
-    (ord >= '2C00'.hex  && ord <= '2FEF'.hex) ||
-    (ord >= '3001'.hex  && ord <= 'D7FF'.hex) ||
-    (ord >= 'F900'.hex  && ord <= 'FDCF'.hex) ||
-    (ord >= 'FDFO'.hex  && ord <= 'FFFD'.hex) ||
-    (ord >= '10000'.hex && ord <= 'EFFFF'.hex)
+    case char.ord
+    when     ':'.ord,
+             'A'.ord ..     'Z'.ord,
+             '_'.ord,
+             'a'.ord ..     'z'.ord,
+            'C0'.hex ..    'D6'.hex,
+            'D8'.hex ..    'F6'.hex,
+            'F8'.hex ..   '2FF'.hex,
+           '370'.hex ..   '37D'.hex,
+           '37F'.hex ..  '1FFF'.hex,
+          '200C'.hex ..  '200D'.hex,
+          '2070'.hex ..  '218F'.hex,
+          '2C00'.hex ..  '2FEF'.hex,
+          '3001'.hex ..  'D7FF'.hex,
+          'F900'.hex ..  'FDCF'.hex,
+          'FDFO'.hex ..  'FFFD'.hex,
+         '10000'.hex .. 'EFFFF'.hex
+      true
+    else
+      false
+    end
   end
 
   # NameChar ::= NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] |
   #              [#x203F-#x2040]
   def self.is_name_char?(char)
-    ord = char.ord
+    return true if is_name_start_char?(char)
 
-    is_name_start_char?(char)               ||
-    (ord == '-'.ord)   || (ord == '.'.ord)  ||
-    (ord >= '0'.ord    && ord <= '9'.ord)   ||
-    (ord == 'B7'.hex)                       ||
-    (ord >= '300'.hex  && ord <= '36F'.hex) ||
-    (ord >= '203F'.hex && ord <= '2040'.hex)
+    case char.ord
+    when    '-'.ord,
+            '.'.ord,
+            '0'.ord ..    '9'.ord,
+           'B7'.hex,
+          '300'.hex ..  '36F'.hex,
+         '203F'.hex .. '2040'.hex
+      true
+    else
+      false
+    end
   end
 end
