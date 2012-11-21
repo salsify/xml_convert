@@ -8,12 +8,19 @@ Gem::Specification.new do |gem|
   gem.version       = XmlConvert::VERSION
   gem.authors       = ["Jeremy Redburn"]
   gem.email         = ["jredburn@salsify.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
-  gem.homepage      = ""
+  gem.description   = %q{xml_convert provides utility methods for encoding and
+                          decoding XML names.}
+  gem.summary       = %q{xml_convert provides utility methods for encoding and
+                          decoding XML names.}
+  gem.homepage      = "https://github.com/socialceramics/xml_convert"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
+
+  gem.add_development_dependency("rake")
+  gem.add_development_dependency("yard")
+  gem.add_development_dependency("redcarpet")
+  gem.add_development_dependency("rspec")
 end
