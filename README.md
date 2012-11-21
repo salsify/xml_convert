@@ -1,6 +1,6 @@
 # XmlConvert
 
-TODO: Write a gem description
+XmlConvert is a Ruby implementation of the [.NET XmlConvert class](http://msdn.microsoft.com/en-us/library/e2104c2x.aspx). It encodes and decodes XML names, giving you an easy way to create NCName-compliant names from arbitrary strings.
 
 ## Installation
 
@@ -18,7 +18,23 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### Encoding
+
+Encode a name:
+
+```ruby
+encoded_name = XmlConvert.encode_name("My Name") # "My_x0020_Name"
+```
+
+Encode a local name, escaping colons as well:
+
+```ruby
+encoded_name = XmlConvert.encode_name("Foo: Bar") # "Foo_x003a__x0020_Bar"
+```
+
+### Decoding
+
+Any of the above [Encoding examples](#encoding) can be reversed with `XmlConvert.decode(name)`.
 
 ## Contributing
 
