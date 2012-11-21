@@ -29,12 +29,12 @@ encoded_name = XmlConvert.encode_name("My Name") # "My_x0020_Name"
 Encode a local name, escaping colons as well:
 
 ```ruby
-encoded_name = XmlConvert.encode_name("Foo: Bar") # "Foo_x003a__x0020_Bar"
+encoded_name = XmlConvert.encode_local_name("Foo: Bar") # "Foo_x003a__x0020_Bar"
 ```
 
 ### Decoding
 
-Any of the above [Encoding examples](#encoding) can be reversed with `XmlConvert.decode(name)`.
+Any of the above [Encoding examples](#encoding) can be reversed with `XmlConvert.decode_name(name)`.
 
 ## Contributing
 
